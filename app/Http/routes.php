@@ -11,6 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'UserController@index');
+
+// Authentication routes...
+Route::post('auth/login', 'Auth\AuthController@postLogin');
+
+// Registration routes...
+Route::post('auth/register', 'Auth\AuthController@postRegister');
