@@ -6,12 +6,16 @@
     <table class="table">
         <thead>
             <tr>
-                <th colspan="3">User Table</th>
+                <th colspan="7">User Table</th>
             </tr>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>PW</th>
+                <th>Remember Me Token</th>
+                <th>Created</th>
+                <th>Updated</th>
             </tr>
         </thead>
         <tbody>
@@ -20,6 +24,10 @@
                 <td>{{ $user->id }}</td>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
+                <td>{{ $user->password }}</td>
+                <td>{{ $user->remember_token }}</td>
+                <td>{{ $user->created_at }}</td>
+                <td>{{ $user->updated_at }}</td>
             </tr>
         @endforeach
         </tbody>

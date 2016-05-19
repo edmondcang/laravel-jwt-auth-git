@@ -1,0 +1,175 @@
+<html>
+
+<head>
+    <title>App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin:0; padding:0;
+        }
+        html, body {
+            position: relative;
+            height: 100%;
+            background: #EEEEEE;
+        }
+        input {
+            width: 100%; padding: 4px; border: 1px solid #ddd;
+            margin: 4px 0;
+        }
+        button {
+            width: 100%; color: #fff;
+            padding: 4px; border: none;
+            background-color: #0af;
+            margin: 4px 0;
+        }
+        .box {
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app" class="box"></div>
+
+    <script>
+        (function ($) {
+            var $app = $('#app');
+            var token = null;
+
+            function reqLogin (queryStr) {
+                console.log(queryStr);
+                $.ajax({
+                    url: '/api/auth/login?' + queryStr,
+                    method: 'POST'
+                }).done(function (res) {
+                    console.log(res);
+                    token = res.token;
+                    init();
+                }).fail(function (err) {
+                    console.log(err);
+                });
+            }
+
+            function mkDashboard() {
+                return $('<div id="dashboard"></div>');
+            }
+
+            function mkGetProfileBtn() {
+                return $(`
+                    <button id="get-profile">Show Profile Info</button>
+                `).click(function (e) {
+                    var self = this;
+                    $.ajax({
+                        method: 'GET',
+                        url: '/api/myprofile?token=' + token
+                    }).done(function (res) {
+                        console.log(res);
+                        var htmlArray = Object.keys(res).map(function (key) {
+                            return `<div>${ key }: ${ res[key] }</div>`;
+                        });
+                        console.log(htmlArray);
+                        $(self).parent().html(htmlArray.join(''));
+                    }).fail(function (err) {
+                        console.log(err);
+                    });
+                });
+            }
+
+            function mkLoginForm() {
+
+                return $(`
+                    <div class="">
+                        <form id="login-form">
+                            <div>
+                                <input type="text" name="email" placeholder="Email" />
+                            </div>
+                            <div>
+                                <input type="password" name="password" placeholder="Password" />
+                            </div>
+                            <div class="text-center">
+                                <button type="submit">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                `).find('form').on('submit', function (e) {
+                    e.preventDefault();
+                    var queryStr = $(this).serialize();
+                    reqLogin(queryStr);
+                });
+            }
+
+            function mkRegisterForm() {
+
+                return $(`
+                    <div class="">
+                        <form id="register-form">
+                            <div>
+                                <input type="text" name="name" placeholder="Name" />
+                            </div>
+                            <div>
+                                <input type="text" name="email" placeholder="Email" />
+                            </div>
+                            <div>
+                                <input type="password" name="password" placeholder="Password" />
+                            </div>
+                            <div>
+                                <input type="password" name="password_confirmation" placeholder="Confirm Password" />
+                            </div>
+                            <div class="text-center">
+                                <button type="submit">Register</button>
+                            </div>
+                        </form>
+                    </div>
+                `).find('form').on('submit', function (e) {
+                    e.preventDefault();
+                    var queryStr = $(this).serialize();
+                    var credentials = $('input[name!=password_confirmation][name!=name]', this).serialize();
+                    $.ajax({
+                        url: '/api/auth/register?' + queryStr,
+                        method: 'POST'
+                    }).done(function (res) {
+                        console.log(res);
+                        if (res.id) {
+                            reqLogin(credentials);
+                        }
+                    }).fail(function (err) {
+                        console.log(err);
+                    });
+                });
+            }
+
+            function init() {
+                if (!token) {
+                    $app.html(mkLoginForm()).append('<hr>').append(mkRegisterForm());
+                }
+                else {
+                    $app.html(mkDashboard().append(mkGetProfileBtn())).append(`
+                        <div><button id="logout">Logout</button></div>
+                    `).find('#logout').click(function (e) {
+                        $.ajax({
+                            url: '/api/auth/logout?token=' + token,
+                            method: 'GET'
+                        }).done(function (res) {
+                            console.log(res);
+                            if (res === true) {
+                                token = null;
+                                init();
+                            }
+                        }).fail(function (err) {
+                            $('body').html(err.responseText);
+                        });
+                    });
+                }
+            }
+
+            init();
+
+        })(jQuery);
+    </script>
+
+</body>
+
+</html>

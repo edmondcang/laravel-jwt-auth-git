@@ -25,5 +25,7 @@ Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 Route::group(['prefix' => 'api'], function () {
     Route::post('auth/login', 'Auth\AuthController@tokenLogin');
+    Route::get('auth/logout', 'Auth\AuthController@tokenLogout');
     Route::post('auth/register', 'Auth\AuthController@tokenRegister');
+    Route::get('myprofile', 'UserController@showUserByToken');
 });

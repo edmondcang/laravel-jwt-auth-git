@@ -83,6 +83,14 @@ class AuthController extends Controller
         return response()->json(compact('token'));
     }
 
+    public function tokenLogout(Request $request) {
+        try {
+            $res = JWTAuth::parseToken()->invalidate();
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'could_not_blacklist_token'], 500);
+        }
+        return response()->json($res);
+    }
     public function tokenLogin(Request $request) {
 
 //        return response()->json($request);
@@ -95,6 +103,7 @@ class AuthController extends Controller
     public function tokenRegister(Request $request) {
         
         $validator = $this->validator($request->all());
+        $data = $request->only('name', 'email', 'password');
 
         if ($validator->fails()) {
             return response()->json([
@@ -102,7 +111,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        return User::create($request->all());
+        return $this->create($data);
 
     }
     

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Namshi\JOSE\JWT;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -51,6 +53,10 @@ class UserController extends Controller
     public function show($id)
     {
         //
+    }
+    
+    public function showUserByToken() {
+        return response()->json(JWTAuth::parseToken()->authenticate());
     }
 
     /**
