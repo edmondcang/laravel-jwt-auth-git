@@ -67,14 +67,8 @@ class AuthController extends Controller
             'password' => bcrypt($data['password']),
         ]);
     }
-
-    public function postLogin(Request $request) {
-
-        return response()->json($request);
     
-        // grab credentials from the request
-        $credentials = $request->only('email', 'password');
-
+    private function tokenAuth($credentials) {
         try {
             // attempt to verify the credentials and create a token for the user
             if (! $token = JWTAuth::attempt($credentials)) {
@@ -88,8 +82,31 @@ class AuthController extends Controller
         // all good so return the token
         return response()->json(compact('token'));
     }
+
+    public function tokenLogin(Request $request) {
+
+//        return response()->json($request);
     
-    public function _postLogin(Request $request) {
+        // grab credentials from the request
+        $credentials = $request->only('email', 'password');
+
+        return $this->tokenAuth($credentials);
+    }
+    public function tokenRegister(Request $request) {
+        
+        $validator = $this->validator($request->all());
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'invalid_credentials', 'req' => $request->all()
+            ], 401);
+        }
+
+        return User::create($request->all());
+
+    }
+    
+    public function postLogin(Request $request) {
         
 //        dd(Input::get());
         
