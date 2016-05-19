@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Namshi\JOSE\JWT;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
@@ -55,8 +56,13 @@ class UserController extends Controller
         //
     }
     
-    public function showUserByToken() {
-        return response()->json(JWTAuth::parseToken()->authenticate());
+    public function showUserByToken(Request $request) {
+        try {
+            $res = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'unauthorized'], 401);
+        }
+        return response()->json($res);
     }
 
     /**

@@ -8,6 +8,8 @@
     <style>
         * {
             margin:0; padding:0;
+            -ms-word-wrap: break-word;
+            word-wrap: break-word;
         }
         html, body {
             position: relative;
@@ -65,15 +67,25 @@
                     $.ajax({
                         method: 'GET',
                         url: '/api/myprofile?token=' + token
-                    }).done(function (res) {
-                        console.log(res);
+                    }).done(function (res, textStatus, xhr) {
+
+                        console.log(xhr.getResponseHeader('Authorization'));
+
                         var htmlArray = Object.keys(res).map(function (key) {
                             return `<div>${ key }: ${ res[key] }</div>`;
                         });
-                        console.log(htmlArray);
-                        $(self).parent().html(htmlArray.join(''));
+
+                        token = xhr.getResponseHeader('Authorization').replace('Bearer', '');
+
+                        htmlArray.push(`
+                            <div>Token: ${ token }</div>
+                        `);
+
+                        $(self).parent().find('.profile-disp').html(htmlArray.join(''));
+
                     }).fail(function (err) {
                         console.log(err);
+                        $('body').html(err.responseText);
                     });
                 });
             }
@@ -146,7 +158,7 @@
                     $app.html(mkLoginForm()).append('<hr>').append(mkRegisterForm());
                 }
                 else {
-                    $app.html(mkDashboard().append(mkGetProfileBtn())).append(`
+                    $app.html(mkDashboard().append('<div class="profile-disp"></div>').append(mkGetProfileBtn())).append(`
                         <div><button id="logout">Logout</button></div>
                     `).find('#logout').click(function (e) {
                         $.ajax({

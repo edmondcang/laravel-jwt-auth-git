@@ -27,5 +27,7 @@ Route::group(['prefix' => 'api'], function () {
     Route::post('auth/login', 'Auth\AuthController@tokenLogin');
     Route::get('auth/logout', 'Auth\AuthController@tokenLogout');
     Route::post('auth/register', 'Auth\AuthController@tokenRegister');
+});
+Route::group(['prefix' => 'api', 'middleware' => ['jwt.auth', 'jwt.refresh']], function () {
     Route::get('myprofile', 'UserController@showUserByToken');
 });
